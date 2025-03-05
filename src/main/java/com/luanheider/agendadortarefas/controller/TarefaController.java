@@ -2,6 +2,8 @@ package com.luanheider.agendadortarefas.controller;
 
 import com.luanheider.agendadortarefas.business.TarefaService;
 import com.luanheider.agendadortarefas.business.dto.TarefaDTO;
+import com.luanheider.agendadortarefas.infrastructure.enums.StatusNotificacaoEnum;
+import com.luanheider.agendadortarefas.infrastructure.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -32,5 +34,28 @@ public class TarefaController {
     @GetMapping
     public ResponseEntity<List<TarefaDTO>> buscarTarefasPorEmail(@RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(tarefaService.buscarTarefasPorEmail(token));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deletarTarefaPorId(@RequestParam("id") String id) {
+        try {
+            tarefaService.deletarTarefaPorId(id);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Erro ao deletar tarefa por id. Id não encontrado"
+                    + id, e.getCause());
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping
+    public ResponseEntity<TarefaDTO> alteraStatusNotificacao(@RequestParam("status") StatusNotificacaoEnum status,
+                                                             @RequestParam("id") String id) {
+        return ResponseEntity.ok(tarefaService.alterarStatusDaTarefa(status, id));
+    }
+
+    @PutMapping
+    public ResponseEntity<TarefaDTO> updateTarefa(@RequestBody TarefaDTO tarefaDTO,
+                                                  @RequestParam("id") String id) {
+        return ResponseEntity.ok(tarefaService.updateTarefas(tarefaDTO, id));
     }
 }
